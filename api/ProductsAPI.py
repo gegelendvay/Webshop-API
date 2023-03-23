@@ -25,9 +25,9 @@ class AddProduct(Resource):
         expiry = args['expiry']
         category = args['category']
 
-        new_product = Product(name, serial_number, expiry, category)
-        if my_shop.addProduct(new_product):
-            return jsonify(new_product)
+        newProduct = Product(name, serial_number, expiry, category)
+        if my_shop.addProduct(newProduct):
+            return jsonify(newProduct)
         else:
             return jsonify('Product with the serial number provided already exists.')
     

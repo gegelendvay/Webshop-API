@@ -13,7 +13,7 @@ class GeneralCustomerOps(Resource):
         return jsonify(my_shop.customers)
 
     @CustomerAPI.doc(
-        description="Register a new customer",
+        description = "Register a new customer",
         params = {
             'address': 'Customers address',
             'name': 'Customers name',
@@ -28,10 +28,10 @@ class GeneralCustomerOps(Resource):
         email = args['email']
         address = args['address']
         dob = args['dob']
-        new_customer = Customer(name, email, address, dob)
+        newCustomer = Customer(name, email, address, dob)
         # add the customer
-        if my_shop.addCustomer(new_customer):
-            return jsonify(new_customer)
+        if my_shop.addCustomer(newCustomer):
+            return jsonify(newCustomer)
         else:
             return jsonify("Customer with the email address already exists")
 
@@ -44,10 +44,10 @@ class SpecificCustomerOps(Resource):
 
     @CustomerAPI.doc(description = "Delete an existing customer")
     def delete(self, customer_id):
-        c = my_shop.getCustomer(customer_id)
-        if not c:
+        customer = my_shop.getCustomer(customer_id)
+        if not customer:
             return jsonify("Customer ID {cust_id} was not found")
-        my_shop.removeCustomer(c)
+        my_shop.removeCustomer(customer)
         return jsonify("Customer with ID {cust_id} was removed")
 
     @CustomerAPI.doc(
@@ -64,9 +64,9 @@ class SpecificCustomerOps(Resource):
         name = args['name']
         address = args['address']
         dob = args['dob']
-        c = my_shop.getCustomer(customer_id)
-        if not c:
-            return jsonify('Custom ID {customer_id} was not found.')
+        customer = my_shop.getCustomer(customer_id)
+        if not customer:
+            return jsonify('Customer ID {customer_id} was not found.')
         my_shop.updateCustomer(customer_id, name, address, dob)
         return jsonify('Customer with ID {customer_id} was updated.')
 
@@ -91,7 +91,34 @@ class CustomerVerficiation(Resource):
             return jsonify("Customer is now verified.")
         else:
             return jsonify("Invalid token.")
-
+        
+@CustomerAPI.route('/<customer_id>/points')
+class CustomerPoints(Resource):
+    @CustomerAPI.doc(
+        description = 'Get the customers bonus points',
+        params = {
+            'customer_id': 'Customers ID'
+        }
+    )
+    def get(self, customer_id):
+        customer = my_shop.getCustomer(customer_id)
+        return jsonify(customer.bonus_points)
+    
+    @CustomerAPI.doc(
+        description = 'Change customers bonus points',
+        params = {
+            'customer_id': 'Customers ID',
+            'bonus_points': 'Quantity of bonus points to add'
+        }
+    )
+    def put(self, customer_id):
+        args = request.args
+        bonus_points = args['bonus_points']
+        customer = my_shop.getCustomer(customer_id)
+        if not customer:
+            return jsonify('Customer ID {customer_id} was not found.')
+        my_shop.updatePoints(customer_id, bonus_points)
+        return jsonify('Customer bonus points with ID {customer_id} was updated.')
 
 @CustomerAPI.route('/<customer_id>/pwreset')
 class CustomerPWReset(Resource):
@@ -107,8 +134,11 @@ class CustomerPWReset(Resource):
             pass
 
     @CustomerAPI.doc(
-        description="Allow password reset based on the temporary password",
-        params={'temp_pw': 'Password sent by email',
-                'new_pw': 'New password'})
+        description = "Allow password reset based on the temporary password",
+        params = {
+            'temp_pw': 'Password sent by email',
+            'new_pw': 'New password'
+        }
+    )
     def put(self, customer_id):
         pass
