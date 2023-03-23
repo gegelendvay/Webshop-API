@@ -4,23 +4,23 @@ from flask_restx import Resource, Namespace
 from model.Customer import Customer
 from model.data import my_shop
 
-CustomerAPI = Namespace('customer',
-                        description='Customer Management')
-
+CustomerAPI = Namespace('customer', description = 'Customer Management')
 
 @CustomerAPI.route('/')
 class GeneralCustomerOps(Resource):
-
-    @CustomerAPI.doc(description="Get a list of all customers")
+    @CustomerAPI.doc(description = "Get a list of all customers")
     def get(self):
         return jsonify(my_shop.customers)
 
     @CustomerAPI.doc(
         description="Register a new customer",
-        params={'address': 'Customers address',
-                'name': 'Customers name',
-                'email': 'Customer Email',
-                'dob': 'Customer birthday'})
+        params = {
+            'address': 'Customers address',
+            'name': 'Customers name',
+            'email': 'Customer Email',
+            'dob': 'Customer birthday'
+        }
+    )
     def post(self):
         # get the post parameters
         args = request.args
@@ -35,15 +35,14 @@ class GeneralCustomerOps(Resource):
         else:
             return jsonify("Customer with the email address already exists")
 
-
 @CustomerAPI.route('/<customer_id>')
 class SpecificCustomerOps(Resource):
-    @CustomerAPI.doc(description="Get data about a particular customer")
+    @CustomerAPI.doc(description = "Get data about a particular customer")
     def get(self, customer_id):
-        search_result = my_shop.getCustomer(customer_id)
-        return search_result  # this is automatically jsonified by flask-restx
+        customer = my_shop.getCustomer(customer_id)
+        return jsonify(customer)
 
-    @CustomerAPI.doc(description="Delete an existing customer")
+    @CustomerAPI.doc(description = "Delete an existing customer")
     def delete(self, customer_id):
         c = my_shop.getCustomer(customer_id)
         if not c:
@@ -52,21 +51,35 @@ class SpecificCustomerOps(Resource):
         return jsonify("Customer with ID {cust_id} was removed")
 
     @CustomerAPI.doc(
-        description="Update customer data",
-        params={'address': 'Customers address',
-                'name': 'Customers name',
-                'email': 'Customer Email',
-                'dob': 'Customer birthday'})
+        description = "Update customer data",
+        params = {
+            'customer_id': 'Customers ID',
+            'name': 'Customers name',
+            'address': 'Customers address',
+            'dob': 'Customer birthday'
+        }
+    )
     def put(self, customer_id):
-        pass
+        args = request.args
+        name = args['name']
+        address = args['address']
+        dob = args['dob']
+        c = my_shop.getCustomer(customer_id)
+        if not c:
+            return jsonify('Custom ID {customer_id} was not found.')
+        my_shop.updateCustomer(customer_id, name, address, dob)
+        return jsonify('Customer with ID {customer_id} was updated.')
 
 
 @CustomerAPI.route('/verify')
 class CustomerVerficiation(Resource):
     @CustomerAPI.doc(
-        description="Verify customer email address",
-        params={'token': 'Verification Token sent by email',
-                'email': 'Customer Email'})
+        description = "Verify customer email address",
+        params = {
+            'token': 'Verification Token sent by email',
+            'email': 'Customer Email'
+        }
+    )
     def put(self):
         args = request.args
         token = args['token']
@@ -83,9 +96,15 @@ class CustomerVerficiation(Resource):
 @CustomerAPI.route('/<customer_id>/pwreset')
 class CustomerPWReset(Resource):
     @CustomerAPI.doc(
-        description="Generate a temporary password and send via email.", )
+        description = "Generate a temporary password and send via email.",
+        params = {
+            'customer_id': 'Customers ID'
+        }
+    )
     def post(self, customer_id):
-        pass
+        customer = my_shop.getCustomer(customer_id)
+        if customer.pwreset():
+            pass
 
     @CustomerAPI.doc(
         description="Allow password reset based on the temporary password",

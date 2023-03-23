@@ -3,20 +3,30 @@ class Shop:
         self.customers = []
         self.products = []
 
-    def addCustomer(self, c):
-        c1 = self.getCustomerbyEmail(c.email)
-        if c1 == None:  # customer does not exist with the given email address
-            self.customers.append(c)
+    def addCustomer(self, customer):
+        c = self.getCustomerbyEmail(customer.email)
+        if c == None:
+            self.customers.append(customer)
             return True
         else:
             return False
-
-    def removeCustomer(self, c):
-        self.customers.remove(c)
-
-    def getCustomer(self, cust_id):
+        
+    def updateCustomer(self, customer, name, address, dob):
         for c in self.customers:
-            if c.customer_id == cust_id:
+            if c.customer_id == customer:
+                c.name = name
+                c.address = address
+                c.dob = dob
+                return True
+            else:
+                return False
+
+    def removeCustomer(self, customer):
+        self.customers.remove(customer)
+
+    def getCustomer(self, customer):
+        for c in self.customers:
+            if c.customer_id == customer:
                 return c
 
     def getCustomerbyEmail(self, email):
@@ -24,16 +34,16 @@ class Shop:
             if c.email == email:
                 return c
 
-    def addProduct(self, p):
-        p1 = self.getProductBySerialNumber(p.serial_number)
-        if p1 == None:
-            self.products.append(p)
+    def addProduct(self, product):
+        p = self.getProductBySerialNumber(product.serial_number)
+        if p == None:
+            self.products.append(product)
             return True
         else:
             return False
         
-    def removeProduct(self, p):
-        self.products.remove(p)
+    def removeProduct(self, product):
+        self.products.remove(product)
         
     def getProduct(self, prod_id):
         for p in self.products:

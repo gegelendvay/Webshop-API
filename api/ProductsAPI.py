@@ -18,7 +18,6 @@ class AddProduct(Resource):
             'category': 'Product Category'
         }
     )
-
     def post(self):
         args = request.args
         name = args['name']
@@ -34,10 +33,10 @@ class AddProduct(Resource):
     
 @ProductAPI.route('/<product_id>')
 class ManageProduct(Resource):
-    @ProductAPI.doc(description = 'Get a product')
+    @ProductAPI.doc(description = 'Get a product by its ID')
     def get(self, product_id):
-        search_result = my_shop.getProduct(product_id)
-        return jsonify(search_result)
+        product = my_shop.getProduct(product_id)
+        return jsonify(product)
 
     @ProductAPI.doc(
         description = 'Delete an existing product',
