@@ -4,7 +4,7 @@ from flask_restx import Resource, Namespace
 from model.Coupon import Coupon
 from model.data import my_shop
 
-CouponAPI = Namespace('coupons', description = 'Management of coupons')
+CouponAPI = Namespace('coupons', description = 'Management of Coupons')
 
 @CouponAPI.route('/')
 class GeneralCouponOps(Resource):
@@ -13,11 +13,11 @@ class GeneralCouponOps(Resource):
         return jsonify(my_shop.coupons) #Only return valid coupons
     
     @CouponAPI.doc(
-        description = '',
+        description = 'Add a new coupon.',
         params = {
             'coupon_id': '10 digit coupon ID',
-            'category': 'Product category the coupon can be applied to',
-            'date': 'Expiry date of the coupon',
+            'category': 'Product category',
+            'date': 'Validity date',
             'discount': 'Discount percentage'
         }
     )
@@ -29,7 +29,10 @@ class GeneralCouponOps(Resource):
         discount = args['discount']
 
         newCoupon = Coupon(coupon_id, category, date, discount)
-        if my_shop.addCoupon(newCoupon):
-            return jsonify(newCoupon)
+        if len(coupon_id) == 10 and coupon_id.isnumeric():
+            if my_shop.addCoupon(newCoupon):
+                return jsonify(newCoupon)
+            else:
+                return jsonify('Coupon ID already exists.')
         else:
-            return jsonify('Product with the coupon ID already exists.')
+            return jsonify('Coupon ID is NaN and/or not 10 char long.')

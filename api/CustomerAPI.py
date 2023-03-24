@@ -8,12 +8,12 @@ CustomerAPI = Namespace('customer', description = 'Customer Management')
 
 @CustomerAPI.route('/')
 class GeneralCustomerOps(Resource):
-    @CustomerAPI.doc(description = "Get a list of all customers")
+    @CustomerAPI.doc(description = "Get a list of all customers.")
     def get(self):
         return jsonify(my_shop.customers)
 
     @CustomerAPI.doc(
-        description = "Register a new customer",
+        description = "Register a new customer.",
         params = {
             'address': 'Customers address',
             'name': 'Customers name',
@@ -33,7 +33,7 @@ class GeneralCustomerOps(Resource):
         if my_shop.addCustomer(newCustomer):
             return jsonify(newCustomer)
         else:
-            return jsonify("Customer with the email address already exists")
+            return jsonify('Customer with the provided email already exists.')
 
 @CustomerAPI.route('/<customer_id>')
 class SpecificCustomerOps(Resource):
@@ -46,9 +46,9 @@ class SpecificCustomerOps(Resource):
     def delete(self, customer_id):
         customer = my_shop.getCustomer(customer_id)
         if not customer:
-            return jsonify("Customer ID {cust_id} was not found")
+            return jsonify('Customer ID not found.')
         my_shop.removeCustomer(customer)
-        return jsonify("Customer with ID {cust_id} was removed")
+        return jsonify("Customer removed.")
 
     @CustomerAPI.doc(
         description = "Update customer data",
@@ -66,9 +66,9 @@ class SpecificCustomerOps(Resource):
         dob = args['dob']
         customer = my_shop.getCustomer(customer_id)
         if not customer:
-            return jsonify('Customer ID {customer_id} was not found.')
+            return jsonify('Customer ID not found.')
         my_shop.updateCustomer(customer_id, name, address, dob)
-        return jsonify('Customer with ID {customer_id} was updated.')
+        return jsonify('Customer data updated.')
 
 
 @CustomerAPI.route('/verify')
@@ -86,11 +86,11 @@ class CustomerVerficiation(Resource):
         email = args['email']
         customer = my_shop.getCustomerbyEmail(email)
         if customer is None:
-            return jsonify("Customer not found.")
+            return jsonify('Customer ID not found.')
         if customer.verify(token):
-            return jsonify("Customer is now verified.")
+            return jsonify('Customer verified.')
         else:
-            return jsonify("Invalid token.")
+            return jsonify('Invalid token.')
         
 @CustomerAPI.route('/<customer_id>/points')
 class CustomerPoints(Resource):
@@ -116,9 +116,9 @@ class CustomerPoints(Resource):
         bonus_points = args['bonus_points']
         customer = my_shop.getCustomer(customer_id)
         if not customer:
-            return jsonify('Customer ID {customer_id} was not found.')
+            return jsonify('Customer ID not found.')
         my_shop.updatePoints(customer_id, bonus_points)
-        return jsonify('Customer bonus points with ID {customer_id} was updated.')
+        return jsonify('Customer bonus points updated.')
 
 @CustomerAPI.route('/<customer_id>/pwreset')
 class CustomerPWReset(Resource):
@@ -130,15 +130,26 @@ class CustomerPWReset(Resource):
     )
     def post(self, customer_id):
         customer = my_shop.getCustomer(customer_id)
-        if customer.pwreset():
-            pass
+        if not customer:
+            return jsonify('Customer ID not found.')
+        return jsonify(customer.generatePass())
 
     @CustomerAPI.doc(
         description = "Allow password reset based on the temporary password",
         params = {
+            'customer_id': 'Customers ID',
             'temp_pw': 'Password sent by email',
             'new_pw': 'New password'
         }
     )
     def put(self, customer_id):
-        pass
+        args = request.args
+        tempPass = args['temp_pw']
+        newPass = args['new_pw']
+        customer = my_shop.getCustomer(customer_id)
+        if not customer:
+            return jsonify('Customer ID not found.')
+        if customer.resetPass(tempPass, newPass):
+            return jsonify('Password changed.')
+        else:
+            return jsonify('Invalid temporary password. Gerenate a new one.')
