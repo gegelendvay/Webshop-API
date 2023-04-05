@@ -7,3 +7,7 @@ class Product():
         self.serial_number = serial_number
         self.expiry = expiry
         self.category = category
+
+    def updateStock(self, quantity):
+        self.quantity = int(quantity)
+        return True #Change return value

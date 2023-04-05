@@ -66,13 +66,14 @@ class SpecificCustomerOps(Resource):
         }
     )
     def put(self, customer_id):
-        args = request.args
-        name = args['name']
-        address = args['address']
-        dob = args['dob']
         customer = my_shop.getCustomer(customer_id)
         if not customer:
             return jsonify('Customer ID not found.')
+        else:
+            args = request.args
+            name = args.get('name', default = customer.name)
+            address = args.get('address', default = customer.address)
+            dob = args.get('dob', default = customer.dob)
         my_shop.updateCustomer(customer_id, name, address, dob)
         return jsonify('Customer data updated.')
 

@@ -11,8 +11,11 @@ class Shop:
             return True
         else:
             return False
-        
-    def updateCustomer(self, customer, name, address, dob):
+
+    def removeCustomer(self, customer):
+        self.customers.remove(customer)
+
+    def updateCustomer(self, customer, name, address, dob): #Move to customer.py
         for c in self.customers:
             if c.customer_id == customer:
                 c.name = name
@@ -21,7 +24,7 @@ class Shop:
                 return True
             else:
                 return False
-            
+
     def updatePoints(self, customer, bonus_points):
         for c in self.customers:
             if c.customer_id == customer:
@@ -29,9 +32,6 @@ class Shop:
                 return True
             else:
                 return False
-
-    def removeCustomer(self, customer):
-        self.customers.remove(customer)
 
     def getCustomer(self, customer):
         for c in self.customers:
@@ -44,26 +44,29 @@ class Shop:
                 return c
 
     def addProduct(self, product):
-        p = self.getProductBySerialNumber(product.serial_number)
+        p = self.getProduct(product.product_id)
         if p == None:
             self.products.append(product)
             return True
         else:
             return False
-        
+
     def removeProduct(self, product):
         self.products.remove(product)
-        
+
+    def updateProduct(self, product, quantity):
+        p = self.getProduct(product.product_id)
+        if p == None:
+            self.products.quantity = quantity
+            return True
+        else:
+            return False
+
     def getProduct(self, prod_id):
         for p in self.products:
             if p.product_id == prod_id:
                 return p
 
-    def getProductBySerialNumber(self, serial_number): #Change to product_id
-        for p in self.products:
-            if p.serial_number == serial_number:
-                return p
-            
     def addCoupon(self, coupon):
         c = self.getCouponById(coupon.coupon_id)
         if c == None:

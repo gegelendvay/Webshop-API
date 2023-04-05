@@ -28,8 +28,6 @@ class AddProduct(Resource):
         product = Product(name, serial_number, expiry, category)
         if my_shop.addProduct(product):
             return jsonify(product)
-        else:
-            return jsonify('Product with the serial number provided already exists.')
     
 @ProductAPI.route('/<product_id>')
 class ManageProduct(Resource):
@@ -54,10 +52,22 @@ class ManageProduct(Resource):
         return jsonify('Product with ID {prod_id} was removed')
 
     @ProductAPI.doc(
-        description = 'Change the stock of a product.'
+        description = 'Change the stock of a product.',
+        params = {
+            'product_id': 'Product ID',
+            'quantity': 'Stock quantity of the product.'
+        }
     )
     def put(self, product_id):
-        pass
+        args = request.args
+        quantity = args['quantity']
+        product = my_shop.getProduct(product_id)
+        if not product:
+            return jsonify('Product ID {prod_id} was not found')
+        if product.updateStock(quantity):
+            return jsonify('Product stock quantity changed.')
+        else: #Remove else to return response for edge cases
+            return jsonify('There was an error changing the stock for this product.')
 
 @ProductAPI.route('/remove')
 class RemoveProduct(Resource):
