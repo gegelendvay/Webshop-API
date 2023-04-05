@@ -1,3 +1,4 @@
+import secrets
 import uuid
 
 class Customer:
@@ -9,12 +10,12 @@ class Customer:
         self.bonus_points = 0
         self.status = "unverified"
         self.verification_token = str(uuid.uuid4())[:5]
+        self.dob = dob
         self.password = None
         self.tempPass = None
-        self.dob = dob
 
     def generatePass(self):
-        self.tempPass = str(uuid.uuid4())[:10]
+        self.tempPass = secrets.token_urlsafe(16)
         return self.tempPass
 
     def resetPass(self, tempPass, newPass):

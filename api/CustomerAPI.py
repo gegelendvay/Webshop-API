@@ -8,7 +8,9 @@ CustomerAPI = Namespace('customer', description = 'Customer Management')
 
 @CustomerAPI.route('/')
 class GeneralCustomerOps(Resource):
-    @CustomerAPI.doc(description = "Get a list of all customers.")
+    @CustomerAPI.doc(
+        description = "Get a list of all customers."
+    )
     def get(self):
         return jsonify(my_shop.customers)
 
@@ -37,12 +39,16 @@ class GeneralCustomerOps(Resource):
 
 @CustomerAPI.route('/<customer_id>')
 class SpecificCustomerOps(Resource):
-    @CustomerAPI.doc(description = "Get data about a particular customer")
+    @CustomerAPI.doc(
+        description = "Get data about a particular customer."
+    )
     def get(self, customer_id):
         customer = my_shop.getCustomer(customer_id)
         return jsonify(customer)
 
-    @CustomerAPI.doc(description = "Delete an existing customer")
+    @CustomerAPI.doc(
+        description = "Delete an existing customer."
+    )
     def delete(self, customer_id):
         customer = my_shop.getCustomer(customer_id)
         if not customer:
@@ -51,7 +57,7 @@ class SpecificCustomerOps(Resource):
         return jsonify("Customer removed.")
 
     @CustomerAPI.doc(
-        description = "Update customer data",
+        description = "Update customer data.",
         params = {
             'customer_id': 'Customers ID',
             'name': 'Customers name',
@@ -95,7 +101,7 @@ class CustomerVerficiation(Resource):
 @CustomerAPI.route('/<customer_id>/points')
 class CustomerPoints(Resource):
     @CustomerAPI.doc(
-        description = 'Get the customers bonus points',
+        description = 'Get the customers bonus points.',
         params = {
             'customer_id': 'Customers ID'
         }
@@ -105,7 +111,7 @@ class CustomerPoints(Resource):
         return jsonify(customer.bonus_points)
     
     @CustomerAPI.doc(
-        description = 'Change customers bonus points',
+        description = 'Change customers bonus points.',
         params = {
             'customer_id': 'Customers ID',
             'bonus_points': 'Quantity of bonus points to add'
@@ -135,7 +141,7 @@ class CustomerPWReset(Resource):
         return jsonify(customer.generatePass())
 
     @CustomerAPI.doc(
-        description = "Allow password reset based on the temporary password",
+        description = "Allow password reset based on the temporary password.",
         params = {
             'customer_id': 'Customers ID',
             'temp_pw': 'Password sent by email',
