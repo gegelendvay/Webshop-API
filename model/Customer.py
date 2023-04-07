@@ -13,6 +13,8 @@ class Customer:
         self.dob = dob
         self.password = None
         self.tempPass = None
+        self.cart = []
+        self.orders = []
 
     def generatePass(self):
         self.tempPass = secrets.token_urlsafe(16)

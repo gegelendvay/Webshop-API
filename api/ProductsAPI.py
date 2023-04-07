@@ -48,7 +48,7 @@ class ManageProduct(Resource):
         product = my_shop.getProduct(product_id)
         if not product:
             return jsonify('Product ID {prod_id} was not found')
-        my_shop.removeProduct(product)
+        my_shop.deleteProduct(product)
         return jsonify('Product with ID {prod_id} was removed')
 
     @ProductAPI.doc(
@@ -68,6 +68,18 @@ class ManageProduct(Resource):
             return jsonify('Product stock quantity changed.')
         else: #Remove else to return response for edge cases
             return jsonify('There was an error changing the stock for this product.')
+        
+@ProductAPI.route('/sell')
+class SellProduct(Resource):
+    @ProductAPI.doc(
+        description = 'Sell a product.',
+        params = {
+            'customer_id': 'Customer ID',
+            'quantity': 'Quantity to sell'
+        }
+    )
+    def put(self):
+        pass
 
 @ProductAPI.route('/remove')
 class RemoveProduct(Resource):
@@ -86,6 +98,9 @@ class RemoveProduct(Resource):
         product = my_shop.getProduct(product_id)
         if not product:
             return jsonify('Product ID not found')
+        if (product.removeProduct()):
+            return jsonify('Product removed from inventory')
+        return jsonify('There was an error removing the product')
         
 
 ProductsAPI = Namespace('products', description = 'Management of Products')
@@ -101,12 +116,8 @@ class Products(Resource):
 @ProductsAPI.route('/reorder')
 class Reorder(Resource):
     @ProductsAPI.doc(
-        description = 'List products that must be reordered.',
-        params = {
-            'name': 'Reorder products',
-            'expiry': 'expiry date',
-            'category': 'product category'
-        }
+        description = 'List of products that must be reordered.',
     )
     def get(self):
-        pass
+        products = (lambda myshop, x: [product for product in myshop.products if product.quantity < x])(my_shop, 15)
+        return jsonify(products)

@@ -51,7 +51,7 @@ class Shop:
         else:
             return False
 
-    def removeProduct(self, product):
+    def deleteProduct(self, product):
         self.products.remove(product)
 
     def updateProduct(self, product, quantity):
@@ -79,3 +79,27 @@ class Shop:
         for c in self.coupons:
             if c.coupon_id == coupon:
                 return c
+            
+    def manageCart(self, customer_id, product_id, quantity):
+        customer = self.getCustomer(customer_id)
+        if customer:
+            product = self.getProduct(product_id)
+            if product:
+                product.quantity = int(quantity)
+                customer.cart.append(product)
+                return customer.cart
+        return None
+            
+    def veritfyCard(self, card):
+        card = card.replace(" ", "")
+        if card.isnumeric() and len(card) == 16:
+            return True
+        else:
+            return False
+        
+    def order(self, customer_id):
+        customer = self.getCustomer(customer_id)
+        if customer:
+            for i in customer.cart:
+                pass
+        return False
