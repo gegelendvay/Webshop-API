@@ -1,7 +1,6 @@
 from flask import jsonify, request
 from flask_restx import Resource, Namespace
 
-from model.Customer import Customer
 from model.Product import Product
 from model.data import my_shop
 
@@ -24,10 +23,11 @@ class AddProduct(Resource):
         serial_number = args['serial_number']
         expiry = args['expiry']
         category = args['category']
-
         product = Product(name, serial_number, expiry, category)
         if my_shop.addProduct(product):
             return jsonify(product)
+        else:
+            return jsonify('Product already exists.')
     
 @ProductAPI.route('/<product_id>')
 class ManageProduct(Resource):
@@ -47,9 +47,9 @@ class ManageProduct(Resource):
     def delete(self, product_id):
         product = my_shop.getProduct(product_id)
         if not product:
-            return jsonify('Product ID {prod_id} was not found')
+            return jsonify('Product ID not found')
         my_shop.deleteProduct(product)
-        return jsonify('Product with ID {prod_id} was removed')
+        return jsonify('Product removed.')
 
     @ProductAPI.doc(
         description = 'Change the stock of a product.',
@@ -63,7 +63,7 @@ class ManageProduct(Resource):
         quantity = args['quantity']
         product = my_shop.getProduct(product_id)
         if not product:
-            return jsonify('Product ID {prod_id} was not found')
+            return jsonify('Product ID not found')
         if product.updateStock(quantity):
             return jsonify('Product stock quantity changed.')
         else: #Remove else to return response for edge cases
@@ -79,7 +79,13 @@ class SellProduct(Resource):
         }
     )
     def put(self):
-        pass
+        args = request.args
+        customer_id = args['customer_args']
+        quantity = args['quantity']
+        customer = my_shop.getCustomer(customer_id)
+        if not customer:
+            return 'Customer ID not found.'
+        
 
 @ProductAPI.route('/remove')
 class RemoveProduct(Resource):
@@ -94,12 +100,11 @@ class RemoveProduct(Resource):
         args = request.args
         product_id = args['product_id']
         reason = args['reason']
-
         product = my_shop.getProduct(product_id)
         if not product:
-            return jsonify('Product ID not found')
+            return jsonify('Product ID not found.')
         if (product.removeProduct()):
-            return jsonify('Product removed from inventory')
+            return jsonify(f'Product removed from inventory: {reason}')
         return jsonify('There was an error removing the product')
         
 

@@ -10,6 +10,7 @@ CouponAPI = Namespace('coupons', description = 'Management of Coupons')
 class GeneralCouponOps(Resource):
     @CouponAPI.doc(description = 'Get a list of all currently valid coupons.')
     def get(self):
+        return jsonify(my_shop.getCoupon())
         return jsonify(my_shop.coupons) #Only return valid coupons
     
     @CouponAPI.doc(
@@ -28,10 +29,10 @@ class GeneralCouponOps(Resource):
         date = args['date']
         discount = args['discount']
 
-        newCoupon = Coupon(coupon_id, category, date, discount)
+        coupon = Coupon(coupon_id, category, date, discount)
         if len(coupon_id) == 10 and coupon_id.isnumeric():
-            if my_shop.addCoupon(newCoupon):
-                return jsonify(newCoupon)
+            if my_shop.addCoupon(coupon):
+                return jsonify(coupon)
             else:
                 return jsonify('Coupon ID already exists.')
         else:

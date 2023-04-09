@@ -24,17 +24,17 @@ class GeneralCustomerOps(Resource):
         }
     )
     def post(self):
-        # get the post parameters
         args = request.args
         name = args['name']
         email = args['email']
         address = args['address']
         dob = args['dob']
-        newCustomer = Customer(name, email, address, dob)
-        # add the customer
-        if my_shop.addCustomer(newCustomer):
-            return jsonify(newCustomer)
-        return jsonify('Customer with the provided email already exists.')
+        customer = Customer(name, email, address, dob)
+        #return jsonify(customer)
+        if my_shop.addCustomer(customer):
+            return jsonify(customer)
+        else:
+            return jsonify("Customer with the email address already exists")
 
 @CustomerAPI.route('/<customer_id>')
 class SpecificCustomerOps(Resource):
@@ -43,6 +43,8 @@ class SpecificCustomerOps(Resource):
     )
     def get(self, customer_id):
         customer = my_shop.getCustomer(customer_id)
+        if not customer:
+            return jsonify('Customer ID not found.')
         return jsonify(customer)
 
     @CustomerAPI.doc(
@@ -68,13 +70,11 @@ class SpecificCustomerOps(Resource):
         customer = my_shop.getCustomer(customer_id)
         if not customer:
             return jsonify('Customer ID not found.')
-        else:
-            args = request.args
-            name = args.get('name', default = customer.name)
-            address = args.get('address', default = customer.address)
-            dob = args.get('dob', default = customer.dob)
-        my_shop.updateCustomer(customer_id, name, address, dob)
-        return jsonify('Customer data updated.')
+        args = request.args
+        name = args.get('name', default = customer.name)
+        address = args.get('address', default = customer.address)
+        dob = args.get('dob', default = customer.dob)
+        return jsonify(my_shop.updateCustomer(customer_id, name, address, dob))
 
 @CustomerAPI.route('/verify')
 class CustomerVerficiation(Resource):
@@ -106,8 +106,7 @@ class CustomerPoints(Resource):
         }
     )
     def get(self, customer_id):
-        customer = my_shop.getCustomer(customer_id)
-        return jsonify(customer.bonus_points)
+        return jsonify(my_shop.getCustomer(customer_id).bonus_points)
     
     @CustomerAPI.doc(
         description = 'Change customers bonus points.',
@@ -119,11 +118,7 @@ class CustomerPoints(Resource):
     def put(self, customer_id):
         args = request.args
         bonus_points = args['bonus_points']
-        customer = my_shop.getCustomer(customer_id)
-        if not customer:
-            return jsonify('Customer ID not found.')
-        my_shop.updatePoints(customer_id, bonus_points)
-        return jsonify('Customer bonus points updated.')
+        return jsonify(my_shop.updatePoints(customer_id, bonus_points))
 
 @CustomerAPI.route('/<customer_id>/pwreset')
 class CustomerPWReset(Resource):
@@ -134,8 +129,6 @@ class CustomerPWReset(Resource):
         }
     )
     def post(self, customer_id):
-        args = request.args
-        customer_id = args['customer_id']
         customer = my_shop.getCustomer(customer_id)
         if not customer:
             return jsonify('Customer ID not found.')
@@ -162,7 +155,7 @@ class CustomerPWReset(Resource):
             return jsonify('Invalid temporary password. Gerenate a new one.')
         
 @CustomerAPI.route('/<customer_id>/add2cart')
-class Customer(Resource):
+class CustomerCart(Resource):
     @CustomerAPI.doc(
         description = 'Add a product to the shopping cart.',
         params = {
@@ -175,29 +168,26 @@ class Customer(Resource):
         args = request.args
         product_id = args['product_id']
         quantity = args['quantity']
-        test = my_shop.manageCart(customer_id, product_id, quantity)
-        return jsonify(test)
+        return jsonify(my_shop.manageCart(customer_id, product_id, int(quantity)))
         
 @CustomerAPI.route('/<customer_id>/order')
-class Customer(Resource):
+class CustomerOrder(Resource):
     @CustomerAPI.doc(
         description = '',
         params = {
             'customer_id': 'Customers ID',
-            'address': 'Shipping address',
-            'card': 'Credit card number'
+            'shipping_address': 'Shipping address',
+            'credit_card': 'Credit card number'
         }
     )
     def post(self, customer_id):
         args = request.args
-        address = args['address']
-        card = args['card']
-        customer = my_shop.getCustomer(customer_id)
-        validCard = my_shop.veritfyCard(card)
-        return jsonify([])
+        shipping_address = args['shipping_address']
+        credit_card = args['credit_card']
+        return jsonify(my_shop.order(customer_id, shipping_address, credit_card))
         
 @CustomerAPI.route('/<customer_id>/orders')
-class Customer(Resource):
+class CustomerOrders(Resource):
     @CustomerAPI.doc(
         description = 'List of previous orders details.',
         params = {
@@ -205,11 +195,10 @@ class Customer(Resource):
         }
     )
     def get(self, customer_id):
-        customer = my_shop.getCustomer(customer_id)
-        return jsonify([])
+        return jsonify(my_shop.getOrders(customer_id))
         
 @CustomerAPI.route('/<customer_id>/returnable')
-class Customer(Resource):
+class CustomerReturns(Resource):
     @CustomerAPI.doc(
         description = 'List of returnable products.',
         params = {
@@ -217,10 +206,9 @@ class Customer(Resource):
         }
     )
     def get(self, customer_id):
-        customer = my_shop.getCustomer(customer_id)
-        return jsonify([])
+        return jsonify(my_shop.returnable(customer_id))
         
-@CustomerAPI.route('/<customer_id>/recommendations') #Pick a random product, and recomment the same categories
+@CustomerAPI.route('/<customer_id>/recommendations')
 class CustomerRecommendation(Resource):
     @CustomerAPI.doc(
         description = 'Get a list of 10 recommended products.',
@@ -229,5 +217,4 @@ class CustomerRecommendation(Resource):
         }
     )
     def get(self, customer_id):
-        customer = my_shop.getCustomer(customer_id)
-        return jsonify([])
+        return jsonify(my_shop.recommendProduct(customer_id))

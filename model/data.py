@@ -16,5 +16,8 @@ my_shop.addProduct(product1)
 product2 = Product("Chicken Thighs", "3446C", "12.04.2023", "Meat")
 my_shop.addProduct(product2)
 
-coupon1 = Coupon("1234567890", "dairy", "25.03.2024", "0.25")
+coupon1 = Coupon("0123456789", "Dairy", "25.03.2024", "0.25")
 my_shop.addCoupon(coupon1)
+
+coupon2 = Coupon("9876543210", "Meat", "12.04.2021", "0.15")
+my_shop.addCoupon(coupon2)

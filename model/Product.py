@@ -19,3 +19,6 @@ class Product():
         if self.quantity == 0:
             return True
         return False
+
+    def sellProduct(self, customer_id, quantity):
+        self.quantity -= quantity
