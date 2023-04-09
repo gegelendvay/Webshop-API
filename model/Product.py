@@ -9,11 +9,15 @@ class Product():
         self.category = category
         self.price = 1
         self.quantity = 1
+        self.weeklySales = 0
 
     def updateStock(self, quantity):
-        self.quantity = int(quantity)
-        return True #Change return value
-    
+        quantity = int(quantity)
+        self.quantity = quantity
+        if self.quantity != quantity:
+            return True
+        return True
+
     def removeProduct(self):
         self.quantity = 0
         if self.quantity == 0:
@@ -21,4 +25,5 @@ class Product():
         return False
 
     def sellProduct(self, customer_id, quantity):
+        self.weeklySales += quantity
         self.quantity -= quantity
