@@ -47,7 +47,6 @@ class Shop:
 
     def manageCart(self, customer_id, product_id, quantity):
         customer = self.getCustomer(customer_id)
-        #quantity = int(quantity)
         if quantity <= 0 and quantity != -1:
             return 'Invalid quantity count'
         if customer:
@@ -62,6 +61,7 @@ class Shop:
                 else:
                     if product in customer.cart:
                         customer.cart.remove(product)
+                        del product.cartQuantity
                     else:
                         return 'Product is not in the cart'
                 return customer.cart
@@ -138,11 +138,11 @@ class Shop:
                         points += i.cartQuantity * round(i.price, 0)
                         total += i.cartQuantity * i.price
                         product = self.getProduct(i.product_id)
-                        product.quantity -= i.quantity
-                        del product['cartQuantity']
+                        product.quantity -= i.cartQuantity
+                        del product.cartQuantity
                         #product.sellProduct(customer_id, i.quantity)
-                    total = max(total - (customer.bonus_points + points) * 0.10, 0)
-                    self.updatePoints(customer_id, points)
+                    discounted = max(total - (customer.bonus_points + points) * 0.10, 0)
+                    self.updatePoints(customer_id, points - round((total - discounted) / 0.10, 0))
                 else:
                     return 'Shopping cart is empty'
             else:
@@ -153,10 +153,10 @@ class Shop:
         deliveryDate = (date.today() + timedelta(days = 2)).strftime("%d.%m.%Y")
         customer.orders.append({'orderDate': orderDate, 'deliveryDate': deliveryDate, 'products': customer.cart})
         customer.cart = []
-        return points, total
+        #return points, points - round((total - discounted) / 0.10, 0), total, discounted
         return 'Your order was succesfully completed'
 
-    def returnable(self, customer_id): #Test
+    def returnable(self, customer_id):
         customer = self.getCustomer(customer_id)
         if not customer:
             return 'Customer ID not found.'
@@ -172,6 +172,7 @@ class Shop:
             return 'Customer ID not found.'
         recommendation = []
         for i in self.products:
-            if i.category == customer.orders[-1].products.category:
-                recommendation.append(i)
+            if customer.orders:
+                if i.category == customer.orders[-1]['products'][0].category and i.quantity > 0 and len(recommendation) < 11:
+                    recommendation.append(i.name)
         return recommendation
